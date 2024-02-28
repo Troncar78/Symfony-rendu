@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ArticleController!{% endblock %}
+
+{% block body %}
+    {% if app.user %}
+        <div class="mb-3">
+            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+        </div>
+    {% endif %}
+
+    {% if not app.user %}
+        <div class="mb-3">
+            You are not connected, <a href="{{ path('app_login') }}">Log In</a> or <a href="{{ path('app_register') }}">Register</a>
+        </div>
+    {% endif %}
+
+    {% for article in articles %}
+        <h3>
+            <a href="{{ path('app_article_show', {slug: article.slug}) }}">{{ article.title|raw }}</a>
+        </h3>
+        {{ article.content|raw }}
+        {% if userRole is not empty and (userRole[0] == 'ROLE_ADMIN' or userRole[0] == 'ROLE_SUPERADMIN') %}
+            <form action="{{ path('app_article_delete', {id: article.id}) }}" method="POST">
+                <input type="hidden" name="csrf" value="{{ csrf_token('delete' ~ article.id) }}">
+                <input type="submit" value="Supprimer">
+            </form>
+        {% endif %}
+
+        </form>
+    {% else %}
+        <p>Aucun article</p>
+    {% endfor %}
+    {% if userRole is not empty and (userRole[0] == 'ROLE_ADMIN' or userRole[0] == 'ROLE_SUPERADMIN') %}
+        <h2>Ajouter un article</h2>
+        {{ form(form) }}
+    {% endif %}
+{% endblock %}

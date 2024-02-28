@@ -1,0 +1,9 @@
+{%  extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="mb-3">
+        <a href={{ path('app_article') }}>Go back</a>
+    </div>
+    <h1>{{ article.title|raw }}</h1>
+    <p>{{ article.content|raw }}</p>
+{% endblock %}
