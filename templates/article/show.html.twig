@@ -6,4 +6,7 @@
     </div>
     <h1>{{ article.title|raw }}</h1>
     <p>{{ article.content|raw }}</p>
+    {% if is_granted('ROLE_ADMIN') or (is_granted('ROLE_SUPERADMIN') and article.user == app.user)%}
+    <a href="{{ path('app_article_update', {'slug': article.slug}) }}" class="btn btn-primary">Modifier</a>
+    {% endif %}
 {% endblock %}

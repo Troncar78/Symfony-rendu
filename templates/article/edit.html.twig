@@ -1,0 +1,15 @@
+{# templates/article/edit.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier l'article{% endblock %}
+
+{% block body %}
+    <h1>Edit Article</h1>
+
+    {{ form_start(articleForm) }}
+    {{ form_widget(articleForm) }}
+    {{ form_end(articleForm) }}
+
+    <a href="{{ path('app_article_show', {'slug': article.slug}) }}">Back to article</a>
+{% endblock %}

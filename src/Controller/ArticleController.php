@@ -4,19 +4,19 @@ namespace App\Controller;
 
 use App\Entity\Article;
 use App\Form\ArticleType;
+use App\Form\UpdateArticleType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 
 
 class ArticleController extends AbstractController
 {
     #[Route('/', name: 'app_article')]
-    public function index(EntityManagerInterface $em, Request $r, SluggerInterface $slugger, Security $security): Response
+    public function index(EntityManagerInterface $em, Request $r, SluggerInterface $slugger): Response
     {
         $un_article = new Article();
         $form = $this->createForm(ArticleType::class, $un_article);
@@ -32,18 +32,9 @@ class ArticleController extends AbstractController
 
         $articles = $em->getRepository(Article::class)->findAll();
 
-        $user = $security->getUser();
-
-        if (null !== $user) {
-            $roles = $user->getRoles();
-        } else {
-            $roles = [];
-        }
-
         return $this->render('article/index.html.twig', [
             'articles' => $articles,
             'form' => $form->createView(),
-            'userRole' => $roles
         ]);
     }
 
@@ -64,4 +55,26 @@ public function show(Article $article)
             'article' => $article
         ]);
     }
+    #[Route('/article/edit/{slug}', name: 'app_article_update')]
+    public function update(Request $request, Article $article, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    {
+        $form = $this->createForm(UpdateArticleType::class, $article);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $article->setSlug($slugger->slug($article->getTitle())->lower());
+
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Article updated successfully!');
+
+            return $this->redirectToRoute('app_article_show', ['slug' => $article->getSlug()]);
+        }
+
+        return $this->render('article/edit.html.twig', [
+            'articleForm' => $form->createView(),
+            'article' => $article,
+        ]);
+    }
+
 }
